@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisOps — Plataforma Inteligente de Gestión de Incidentes y RAG</title>
+
+<!-- Tailwind CDN + configuración (el orden importa) -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="/Frontend/js/index.js"></script>
+
+<!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+<!-- Estilos propios -->
+    <link rel="stylesheet" href="/Frontend/css/index.css">
+</head>
+<body class="bg-dark-surface text-dark-on-surface font-body min-h-[1024px] flex flex-col antialiased selection:bg-accent selection:text-white" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+<!-- Header Público de Inicio -->
+<header class="bg-dark-surface-container-low/90 backdrop-blur-md border-b border-dark-outline px-6 lg:px-12 py-4 flex items-center justify-between sticky top-0 z-40">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-md bg-accent/20 border border-accent/40 text-accent flex items-center justify-center font-bold text-headline-md shadow-xs">
+            <span class="material-symbols-outlined text-[24px]">shield</span>
+        </div>
+        <div>
+            <span class="font-headline text-headline-md font-bold tracking-tight text-dark-on-surface">Aegis<span class="text-accent">Ops</span></span>
+            <span class="hidden sm:inline-block ml-2 px-2 py-0.5 rounded text-[10px] font-code bg-dark-surface-container text-accent border border-accent/30 font-semibold uppercase tracking-wider">Cloud SRE &amp; RAG</span>
+        </div>
+    </div>
+
+    <!-- Navegación Pública -->
+    <nav class="hidden md:flex items-center gap-8 text-label-md font-medium text-dark-secondary">
+        <a href="#capacidades" class="hover:text-dark-on-surface transition-colors">Capacidades</a>
+        <a href="#arquitectura" class="hover:text-dark-on-surface transition-colors">Arquitectura RAG</a>
+        <a href="#metricas" class="hover:text-dark-on-surface transition-colors">Observabilidad</a>
+        <a href="#seguridad" class="hover:text-dark-on-surface transition-colors">Seguridad</a>
+    </nav>
+
+    <!-- Botones de Acción de Autenticación -->
+    <div class="flex items-center gap-3">
+        <a href="../html/login.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-DEFAULT bg-accent text-dark-on-primary font-label text-label-md font-bold hover:brightness-110 active:scale-95 transition-all shadow-sm">
+            <span>Acceder a la Consola</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </a>
+    </div>
+</header>
+
+<!-- Contenido Principal -->
+<main class="flex-1 flex flex-col justify-center">
+
+    <!-- Sección Hero -->
+    <section class="relative px-6 lg:px-12 py-16 lg:py-24 max-w-6xl mx-auto w-full text-center space-y-8">
+
+    <!-- Pill de Estatus Operativo -->
+    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-dark-surface-container border border-dark-outline text-body-sm font-medium">
+        <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+        <span class="text-dark-secondary">Plataforma en Producción</span>
+    </div>
+
+    <!-- Título de Impacto -->
+    <div class="space-y-4 max-w-4xl mx-auto">
+        <h1 class="font-headline text-display-lg sm:text-[48px] sm:leading-[56px] font-extrabold tracking-tight text-dark-on-surface text-balance">
+            Respuesta a incidentes tecnológicos guiada por <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent to-rag-ai">inteligencia semántica RAG</span> y telemetría real.
+        </h1>
+        <p class="text-body-lg text-dark-secondary max-w-2xl mx-auto leading-relaxed text-pretty">
+            AegisOps conecta la gestión estructurada de incidentes, el análisis estadístico verificado y la recuperación de antecedentes mediante embeddings vectoriales para acelerar la resolución de caídas críticas.
+        </p>
+    </div>
+
+    <!-- Botones de Acción Primarios -->
+    <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+        <a href="../html/login.html" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-DEFAULT bg-accent text-dark-on-primary font-label text-label-lg font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-accent/20">
+            <span class="material-symbols-outlined text-[20px]">login</span>
+            <span>Iniciar Sesión en el Sistema</span>
+        </a>
+        <a href="../aegis-analytics/DashboardAnalytics.html" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-DEFAULT bg-dark-surface-container-low hover:bg-dark-surface-container border border-dark-outline text-dark-on-surface font-label text-label-lg font-semibold transition-colors">
+            <span class="material-symbols-outlined text-[20px] text-accent">visibility</span>
+            <span>Explorar Vista Previa del Dashboard</span>
+        </a>
+    </div>
+
+    <!-- Métricas Clave de Confianza Operacional -->
+    <div id="metricas" class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12 text-left">
+        <div class="p-4 rounded-md bg-dark-surface-container-low border border-dark-outline">
+            <div class="text-body-sm text-dark-secondary mb-1">Reducción MTTR</div>
+            <div class="font-headline text-headline-lg font-bold text-accent tabular-nums">-18.4%</div>
+            <div class="text-body-sm text-dark-secondary">En el último trimestre</div>
+        </div>
+        <div class="p-4 rounded-md bg-dark-surface-container-low border border-dark-outline">
+            <div class="text-body-sm text-dark-secondary mb-1">Cálculos Verificados</div>
+            <div class="font-headline text-headline-lg font-bold text-success">100% Real</div>
+            <div class="text-body-sm text-dark-secondary">Sin cifras alucinadas por IA</div>
+        </div>
+        <div class="p-4 rounded-md bg-dark-surface-container-low border border-dark-outline">
+            <div class="text-body-sm text-dark-secondary mb-1">Espacio Vectorial</div>
+            <div class="font-headline text-headline-lg font-bold text-rag-ai">1536-dim</div>
+            <div class="text-body-sm text-dark-secondary">Embeddings de alta fidelidad</div>
+        </div>
+        <div class="p-4 rounded-md bg-dark-surface-container-low border border-dark-outline">
+            <div class="text-body-sm text-dark-secondary mb-1">SLO Availability</div>
+            <div class="font-headline text-headline-lg font-bold text-dark-on-surface tabular-nums">99.942%</div>
+            <div class="text-body-sm text-dark-secondary">Monitoreo continuo 24/7</div>
+        </div>
+    </div>
+
+    </section>
+
+    <!-- Sección de los 3 Espacios Modulares de AegisOps -->
+    <section id="capacidades" class="px-6 lg:px-12 py-16 bg-dark-surface-container-low/40 border-t border-dark-outline">
+        <div class="max-w-6xl mx-auto space-y-10">
+
+            <div class="text-center space-y-2 max-w-xl mx-auto">
+                <h2 class="font-headline text-headline-lg font-bold text-dark-on-surface">Tres Espacios Dedicados e Independientes</h2>
+                <p class="text-body-md text-dark-secondary">Cada función crítica cuenta con su propia pantalla optimizada para flujos sin distracciones.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Espacio 1: Dashboard -->
+                <div class="p-6 rounded-md bg-dark-surface-container-low border border-dark-outline hover:border-accent/50 transition-colors flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded bg-accent/20 border border-accent/40 text-accent flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined text-[26px]">insights</span>
+                        </div>
+                    <h3 class="font-headline text-title-lg font-bold text-dark-on-surface">Dashboard Analítico</h3>
+                    <p class="text-body-sm text-dark-secondary leading-relaxed">
+                        Métricas verificables, series temporales filtradas por fechas, categorías y prioridades directamente contra la base de datos.
+                    </p>
+                    </div>
+                    <div class="pt-2">
+                        <a href="../aegis-auth/Login.html" class="inline-flex items-center gap-1.5 text-accent text-label-md font-semibold hover:underline">
+                            <span>Ingresar al Dashboard</span>
+                            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Espacio 2: Gestión de Incidentes -->
+                <div class="p-6 rounded-md bg-dark-surface-container-low border border-dark-outline hover:border-severity-p1/50 transition-colors flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded bg-severity-p1/20 border border-severity-p1/40 text-severity-p1 flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined text-[26px]">emergency</span>
+                        </div>
+                    <h3 class="font-headline text-title-lg font-bold text-dark-on-surface">Gestión de Incidentes</h3>
+                    <p class="text-body-sm text-dark-secondary leading-relaxed">
+                        Registro detallado con título, descripción, categoría, prioridad, estado y responsable asignado. Actualizaciones en vivo y búsqueda en tiempo real.
+                    </p>
+                    </div>
+                    <div class="pt-2">
+                        <a href="../aegis-auth/Login.html" class="inline-flex items-center gap-1.5 text-accent text-label-md font-semibold hover:underline">
+                            <span>Operar Incidentes</span>
+                            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Espacio 3: Estudio RAG -->
+                <div class="p-6 rounded-md bg-dark-surface-container-low border border-dark-outline hover:border-rag-ai/50 transition-colors flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded bg-rag-ai/20 border border-rag-ai/40 text-rag-ai flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined text-[26px]">psychology</span>
+                        </div>
+                    <h3 class="font-headline text-title-lg font-bold text-dark-on-surface">Estudio RAG &amp; Semántica</h3>
+                    <p class="text-body-sm text-dark-secondary leading-relaxed">
+                        Consola de inferencia aumentada. Búsqueda por similitud de embeddings con citas exactas.
+                    </p>
+                    </div>
+                    <div class="pt-2">
+                        <a href="../aegis-auth/Login.html" class="inline-flex items-center gap-1.5 text-rag-ai text-label-md font-semibold hover:underline">
+                            <span>Abrir Estudio RAG</span>
+                            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer Público -->
+<footer class="bg-dark-surface-container-low border-t border-dark-outline px-6 lg:px-12 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-body-sm text-dark-secondary">
+    <div class="flex items-center gap-2">
+        <span class="font-headline font-bold text-dark-on-surface">AegisOps</span>
+        <span>© 2026 Campuslands</span>
+    </div>
+    <div class="flex items-center gap-4 text-label-sm font-code">
+        <span class="text-success flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-success"></span> Todos los sistemas operativos</span>
+    </div>
+</footer>
+
+</body>
+</html>

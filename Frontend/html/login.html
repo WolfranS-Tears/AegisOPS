@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisOps — Iniciar Sesión en la Plataforma SRE</title>
+
+<!-- Tailwind CDN + configuración (el orden importa) -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="/Frontend/js/index.js"></script>
+
+<!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+<!-- Estilos propios -->
+    <link rel="stylesheet" href="/Frontend/css/login.css">
+</head>
+<body class="bg-dark-surface text-dark-on-surface font-body min-h-[1024px] flex flex-col justify-between antialiased selection:bg-accent selection:text-white" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+<!-- Header Mínimo de Autenticación -->
+<header class="p-6 lg:px-12 flex items-center justify-between">
+    <a href="../aegis-landing/Index.html" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-md bg-accent/20 border border-accent/40 text-accent flex items-center justify-center font-bold text-headline-md group-hover:brightness-110 transition-all">
+            <span class="material-symbols-outlined text-[20px]">shield</span>
+        </div>
+        <div>
+            <span class="font-headline text-title-lg font-bold tracking-tight text-dark-on-surface">Aegis<span class="text-accent">Ops</span></span>
+        </div>
+    </a>
+
+    <a href="../aegis-landing/Index.html" class="inline-flex items-center gap-1.5 text-body-sm text-dark-secondary hover:text-dark-on-surface transition-colors">
+        <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+        <span>Volver al portal principal</span>
+    </a>
+</header>
+
+<!-- Tarjeta Central de Inicio de Sesión -->
+<main class="flex-1 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-dark-surface-container-low rounded-md border border-dark-outline shadow-2xl p-8 space-y-6">
+
+    <!-- Título de la Tarjeta -->
+        <div class="text-center space-y-2">
+            <div class="w-12 h-12 rounded-full bg-dark-surface-container border border-dark-outline text-accent mx-auto flex items-center justify-center mb-3">
+                <span class="material-symbols-outlined text-[24px]">vpn_key</span>
+            </div>
+            <h1 class="font-headline text-headline-sm font-bold text-dark-on-surface">Iniciar Sesión en AegisOps</h1>
+            <p class="text-body-sm text-dark-secondary">Acceso seguro a telemetría de clústeres, incidentes y asistente RAG.</p>
+        </div>
+
+    <!-- Formulario de Credenciales -->
+        <form id="login-form" class="space-y-4" action="../aegis-analytics/DashboardAnalytics.html">
+
+        <!-- Campo Correo Corporativo / SRE -->
+        <div>
+                <label for="login-email" class="block font-label text-label-md font-semibold text-dark-on-surface mb-1">
+                    Correo Electrónico Corporativo
+                </label>
+            <div class="relative flex items-center">
+                <span class="material-symbols-outlined absolute left-3 text-dark-secondary text-[18px]">mail</span>
+                <input id="login-email" type="email" required value="andrea.lozano@aegisops.internal" placeholder="operador@empresa.com" class="w-full pl-10 pr-3 py-2.5 rounded-DEFAULT bg-dark-surface-container border border-dark-outline text-body-md text-dark-on-surface focus:border-accent focus:ring-1 focus:ring-accent outline-none placeholder:text-dark-secondary/50 font-body">
+            </div>
+        </div>
+
+        <!-- Campo Contraseña con Atajo de Revelar -->
+        <div>
+            <div class="flex items-center justify-between mb-1">
+                <label for="login-password" class="font-label text-label-md font-semibold text-dark-on-surface">
+                    Contraseña
+                </label>
+            <a href="#reset" class="text-body-sm text-accent hover:underline">¿Olvidaste tu clave?</a>
+            </div>
+            <div class="relative flex items-center">
+                <span class="material-symbols-outlined absolute left-3 text-dark-secondary text-[18px]">lock</span>
+                <input id="login-password" type="password" required value="••••••••••••" class="w-full pl-10 pr-10 py-2.5 rounded-DEFAULT bg-dark-surface-container border border-dark-outline text-body-md text-dark-on-surface focus:border-accent focus:ring-1 focus:ring-accent outline-none font-code text-sm">
+                <button type="button" id="toggle-password" class="absolute right-3 text-dark-secondary hover:text-dark-on-surface p-1" title="Mostrar contraseña">
+                <span class="material-symbols-outlined text-[18px]">visibility</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Opciones de Sesión y MFA -->
+        <div class="flex items-center justify-between text-body-sm text-dark-secondary">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked class="rounded bg-dark-surface-container border-dark-outline text-accent focus:ring-0">
+                <span>Recordar dispositivo seguro</span>
+            </label>
+            <span class="flex items-center gap-1 font-code text-[11px] text-success">
+                <span class="w-1.5 h-1.5 rounded-full bg-success"></span> MFA Habilitado
+            </span>
+        </div>
+
+        <!-- Botón de Envío -->
+        <button type="submit" id="btn-submit-login" class="w-full py-3 rounded-DEFAULT bg-accent text-dark-on-primary font-label text-label-lg font-bold hover:brightness-110 active:scale-[0.99] transition-all shadow-md shadow-accent/20 flex items-center justify-center gap-2">
+            <span>Acceder a la Consola</span>
+            <span class="material-symbols-outlined text-[18px]">login</span>
+        </button>
+
+        </form>
+
+    <!-- Divisor SSO / SAML Corporativo -->
+        <div class="relative flex items-center justify-center">
+            <div class="border-t border-dark-outline w-full"></div>
+            <span class="bg-dark-surface-container-low px-3 text-body-sm text-dark-secondary font-medium">o ingresar vía SSO</span>
+        </div>
+
+    <!-- Métodos SSO -->
+        <div class="grid grid-cols-2 gap-3">
+            <a href="../aegis-analytics/DashboardAnalytics.html" class="flex items-center justify-center gap-2 py-2 px-3 rounded-DEFAULT bg-dark-surface-container hover:bg-dark-surface-container-high border border-dark-outline text-label-md font-medium text-dark-on-surface transition-colors">
+            <span class="material-symbols-outlined text-[18px] text-accent">fingerprint</span>
+            <span>Okta SAML</span>
+            </a>
+        <a href="../aegis-analytics/DashboardAnalytics.html" class="flex items-center justify-center gap-2 py-2 px-3 rounded-DEFAULT bg-dark-surface-container hover:bg-dark-surface-container-high border border-dark-outline text-label-md font-medium text-dark-on-surface transition-colors">
+            <span class="material-symbols-outlined text-[18px] text-rag-ai">security</span>
+            <span>Google Workspace</span>
+        </a>
+        </div>
+
+    <!-- Cuenta de Demostración Preconfigurada -->
+        <div class="p-3 rounded bg-dark-surface-container/70 border border-dark-outline text-body-sm text-dark-secondary flex items-start gap-2.5">
+                <span class="material-symbols-outlined text-accent text-[18px] shrink-0 mt-0.5">info</span>
+            <div>
+                <span class="font-semibold text-dark-on-surface">Demostración interactiva:</span> Haz clic en <em>Acceder a la Consola</em> para ingresar inmediatamente con el rol <strong class="text-accent font-code">Lead SRE</strong> al Dashboard.
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- Footer Mínimo -->
+<footer class="p-6 text-center text-body-sm text-dark-secondary border-t border-dark-outline/40">
+    <span>AegisOps Observability &amp; Incident Response · Cumple con SOC2 y estándares ISO 27001.</span>
+</footer>
+
+<!-- Lógica interactiva de login -->
+<script src="/Frontend/js/login.js"></script>
+
+</body>
+</html>
