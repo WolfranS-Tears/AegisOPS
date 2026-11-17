@@ -1,0 +1,47 @@
+/* ==========================================================================
+    AegisOps — Estilos base
+    El diseño principal se resuelve con clases de Tailwind (ver index.js).
+    Este archivo contiene únicamente ajustes globales complementarios.
+========================================================================== */
+
+/* Desplazamiento suave al navegar por las anclas del menú */
+html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+}
+
+/* Compensa el header sticky al saltar a una sección */
+section[id] {
+    scroll-margin-top: 80px;
+}
+
+/* Iconos Material Symbols */
+.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    user-select: none;
+}
+
+/* Utilidades de balanceo de texto para títulos y párrafos */
+.text-balance {
+    text-wrap: balance;
+}
+
+.text-pretty {
+    text-wrap: pretty;
+}
+
+/* Números tabulares para métricas */
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Accesibilidad: respeta la preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+}
+
+.animate-pulse {
+    animation: none;
+}
+}

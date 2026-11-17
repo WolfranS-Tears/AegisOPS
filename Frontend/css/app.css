@@ -1,0 +1,187 @@
+/* ==========================================================================
+    AegisOps — Estilos de las pantallas internas
+    El diseño principal se resuelve con clases de Tailwind (ver js/index.js).
+========================================================================== */
+
+html {
+    color-scheme: dark;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    user-select: none;
+}
+
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Campos de formulario consistentes */
+.campo {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.campo:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 1px #0ea5e9;
+}
+
+.campo::placeholder {
+    color: rgb(148 163 184 / 0.6);
+}
+
+.etiqueta {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    color: #f8fafc;
+}
+
+.error-campo {
+    display: block;
+    min-height: 16px;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #ef4444;
+}
+
+/* Botones */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    transition: filter 120ms, background-color 120ms;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primario {
+    background: #0ea5e9;
+    color: #030712;
+}
+
+.btn-primario:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.btn-ia {
+    background: #8b5cf6;
+    color: #fff;
+}
+
+.btn-ia:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.btn-secundario {
+    background: #111827;
+    border: 1px solid #334155;
+    color: #f8fafc;
+}
+
+.btn-secundario:hover:not(:disabled) {
+    background: #1e293b;
+}
+
+.tarjeta {
+    background: #111827;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+}
+
+/* Tablas */
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.tabla th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid #334155;
+    white-space: nowrap;
+}
+
+.tabla td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid #1e293b;
+    vertical-align: top;
+}
+
+.tabla tbody tr:hover {
+    background: rgb(30 41 59 / 0.5);
+}
+
+.tabla .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Diálogo modal nativo */
+dialog.modal {
+    width: min(640px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px);
+    padding: 0;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    background: #111827;
+    color: #f8fafc;
+}
+
+dialog.modal::backdrop {
+    background: rgb(3 7 18 / 0.7);
+}
+
+/* Estrellas de calificación */
+.estrella {
+    font-size: 28px;
+    color: #334155;
+    cursor: pointer;
+    transition: color 120ms;
+}
+
+.estrella.activa {
+    color: #f59e0b;
+    font-variation-settings: "FILL" 1;
+}
+
+.spinner {
+    animation: girar 0.9s linear infinite;
+}
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spinner {
+        animation: none;
+    }
+}

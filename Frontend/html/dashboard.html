@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisOps — Dashboard analítico</title>
+    <script src="https://cdn.tailwindcss.com?plugins=container-queries"></script>
+    <script src="../js/index.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body data-pagina="dashboard" class="bg-dark-surface text-dark-on-surface font-body antialiased min-h-screen">
+
+<main id="contenido" class="min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="font-headline text-headline-lg font-bold">Dashboard analítico</h1>
+                <p class="text-body-md text-dark-secondary">Indicadores calculados con SQL sobre los incidentes almacenados (RF06 / RF07).</p>
+            </div>
+            <span id="estado-carga" class="text-body-sm text-dark-secondary font-code" aria-live="polite"></span>
+        </div>
+
+        <!-- Filtros -->
+        <form id="filtros" class="tarjeta p-4 grid grid-cols-2 md:grid-cols-5 gap-3 items-end">
+            <div>
+                <label class="etiqueta" for="f-desde">Desde</label>
+                <input class="campo" type="date" id="f-desde" name="desde">
+            </div>
+            <div>
+                <label class="etiqueta" for="f-hasta">Hasta</label>
+                <input class="campo" type="date" id="f-hasta" name="hasta">
+            </div>
+            <div>
+                <label class="etiqueta" for="f-categoria">Categoría</label>
+                <select class="campo" id="f-categoria" name="categoriaId"></select>
+            </div>
+            <div>
+                <label class="etiqueta" for="f-prioridad">Prioridad</label>
+                <select class="campo" id="f-prioridad" name="prioridad">
+                    <option value="">Todas</option>
+                    <option value="CRITICA">Crítica</option>
+                    <option value="ALTA">Alta</option>
+                    <option value="MEDIA">Media</option>
+                    <option value="BAJA">Baja</option>
+                </select>
+            </div>
+            <div class="col-span-2 md:col-span-1 flex gap-2">
+                <button type="submit" class="btn btn-primario flex-1"><span class="material-symbols-outlined text-[18px]">filter_alt</span>Aplicar</button>
+                <button type="button" id="btn-limpiar" class="btn btn-secundario" title="Limpiar filtros" aria-label="Limpiar filtros"><span class="material-symbols-outlined text-[18px]">restart_alt</span></button>
+            </div>
+        </form>
+
+        <!-- KPIs -->
+        <section class="grid grid-cols-2 lg:grid-cols-5 gap-4" aria-label="Indicadores principales">
+            <div class="tarjeta p-4">
+                <div class="text-body-sm text-dark-secondary">Incidentes</div>
+                <div id="k-total" class="font-headline text-headline-lg font-bold tabular-nums">—</div>
+                <div id="k-abiertos" class="text-body-sm text-dark-secondary">—</div>
+            </div>
+            <div class="tarjeta p-4">
+                <div class="text-body-sm text-dark-secondary">% de resolución</div>
+                <div id="k-resolucion" class="font-headline text-headline-lg font-bold text-success tabular-nums">—</div>
+                <div id="k-resueltos" class="text-body-sm text-dark-secondary">—</div>
+            </div>
+            <div class="tarjeta p-4">
+                <div class="text-body-sm text-dark-secondary">Tiempo promedio</div>
+                <div id="k-promedio" class="font-headline text-headline-lg font-bold text-accent tabular-nums">—</div>
+                <div class="text-body-sm text-dark-secondary">horas hasta resolver</div>
+            </div>
+            <div class="tarjeta p-4">
+                <div class="text-body-sm text-dark-secondary">Mediana</div>
+                <div id="k-mediana" class="font-headline text-headline-lg font-bold tabular-nums">—</div>
+                <div class="text-body-sm text-dark-secondary">horas (menos sensible a extremos)</div>
+            </div>
+            <div class="tarjeta p-4 col-span-2 lg:col-span-1">
+                <div class="text-body-sm text-dark-secondary">Críticos abiertos</div>
+                <div id="k-criticos" class="font-headline text-headline-lg font-bold text-severity-p1 tabular-nums">—</div>
+                <div class="text-body-sm text-dark-secondary">requieren atención inmediata</div>
+            </div>
+        </section>
+
+        <!-- Tendencia semanal -->
+        <section class="tarjeta p-4">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="font-headline text-title-lg font-bold">Evolución semanal</h2>
+                <span class="text-body-sm text-dark-secondary">creados vs. resueltos por semana (lunes)</span>
+            </div>
+            <div class="h-72"><canvas id="g-tendencia" aria-label="Incidentes creados y resueltos por semana" role="img"></canvas></div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section class="tarjeta p-4">
+                <h2 class="font-headline text-title-lg font-bold mb-3">Distribución por categoría</h2>
+                <div class="h-72"><canvas id="g-categoria" role="img" aria-label="Incidentes por categoría"></canvas></div>
+            </section>
+            <section class="tarjeta p-4">
+                <h2 class="font-headline text-title-lg font-bold mb-3">Tiempo promedio de resolución por categoría</h2>
+                <div class="h-72"><canvas id="g-tiempos" role="img" aria-label="Horas promedio de resolución por categoría"></canvas></div>
+            </section>
+            <section class="tarjeta p-4">
+                <h2 class="font-headline text-title-lg font-bold mb-3">Distribución por prioridad</h2>
+                <div class="h-64"><canvas id="g-prioridad" role="img" aria-label="Incidentes por prioridad"></canvas></div>
+            </section>
+            <section class="tarjeta p-4">
+                <h2 class="font-headline text-title-lg font-bold mb-3">Distribución por estado</h2>
+                <div class="h-64"><canvas id="g-estado" role="img" aria-label="Incidentes por estado"></canvas></div>
+            </section>
+        </div>
+
+        <!-- Tablas -->
+        <section class="tarjeta p-4">
+            <h2 class="font-headline text-title-lg font-bold mb-1">Categorías con mayores problemas</h2>
+            <p class="text-body-sm text-dark-secondary mb-3">Ordenadas por volumen; incluye peso de prioridades altas/críticas y backlog.</p>
+            <div class="overflow-x-auto"><table class="tabla" id="t-criticas"></table></div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section class="tarjeta p-4">
+                <h2 class="font-headline text-title-lg font-bold mb-1">Cumplimiento de objetivos (SLA)</h2>
+                <p class="text-body-sm text-dark-secondary mb-3">Objetivo: Crítica 4 h · Alta 8 h · Media 24 h · Baja 72 h.</p>
+                <div class="overflow-x-auto"><table class="tabla" id="t-sla"></table></div>
+            </section>
+            <section class="tarjeta p-4">
+                <h2 class="font-headline text-title-lg font-bold mb-1">Asistente RAG</h2>
+                <p class="text-body-sm text-dark-secondary mb-3">Consultas por estado, calificación promedio y artículos más usados.</p>
+                <div id="asistente-kpis" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3"></div>
+                <div class="overflow-x-auto"><table class="tabla" id="t-articulos"></table></div>
+            </section>
+        </div>
+
+        <section class="tarjeta p-4">
+            <h2 class="font-headline text-title-lg font-bold mb-3">Carga por responsable</h2>
+            <div class="overflow-x-auto"><table class="tabla" id="t-responsables"></table></div>
+        </section>
+
+        <p class="text-body-sm text-dark-secondary">
+            Fuente: <span class="font-code">GET /api/analitica/dashboard</span>. Las consultas SQL equivalentes están en
+            <span class="font-code">database/consultas_analiticas.sql</span>.
+        </p>
+    </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/dashboard.js"></script>
+</body>
+</html>

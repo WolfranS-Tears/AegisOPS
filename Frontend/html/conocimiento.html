@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisOps — Base de conocimiento</title>
+    <script src="https://cdn.tailwindcss.com?plugins=container-queries"></script>
+    <script src="../js/index.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body data-pagina="conocimiento" class="bg-dark-surface text-dark-on-surface font-body antialiased min-h-screen">
+
+<main id="contenido" class="min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="font-headline text-headline-lg font-bold">Base de conocimiento</h1>
+                <p class="text-body-md text-dark-secondary">Artículos técnicos (RF02). Solo los <strong>activos y verificados</strong> se usan como fuente del asistente.</p>
+            </div>
+            <div class="flex gap-2">
+                <button id="btn-indexar" type="button" class="btn btn-secundario" title="Ejecuta el flujo 1 de n8n">
+                    <span class="material-symbols-outlined text-[18px]">sync</span>Reindexar embeddings</button>
+                <button id="btn-nuevo" type="button" class="btn btn-primario"><span class="material-symbols-outlined text-[18px]">add</span>Nuevo artículo</button>
+            </div>
+        </div>
+
+        <form id="filtros" class="tarjeta p-4 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+            <div class="sm:col-span-2">
+                <label class="etiqueta" for="a-texto">Buscar</label>
+                <input class="campo" id="a-texto" name="texto" type="search" placeholder="Título o problema">
+            </div>
+            <div>
+                <label class="etiqueta" for="a-categoria">Categoría</label>
+                <select class="campo" id="a-categoria" name="categoriaId"></select>
+            </div>
+            <div class="flex gap-2 items-end">
+                <div class="flex-1">
+                    <label class="etiqueta" for="a-estado">Estado</label>
+                    <select class="campo" id="a-estado" name="estado">
+                        <option value="">Todos</option><option value="ACTIVO">Activo</option>
+                        <option value="BORRADOR">Borrador</option><option value="INACTIVO">Inactivo</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primario" aria-label="Filtrar"><span class="material-symbols-outlined text-[18px]">filter_alt</span></button>
+            </div>
+        </form>
+
+        <p id="resumen" class="text-body-sm text-dark-secondary" aria-live="polite"></p>
+        <div id="lista" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+    </div>
+</main>
+
+<dialog id="modal" class="modal" aria-labelledby="modal-titulo">
+    <form id="form-articulo" method="dialog" class="p-6 space-y-3" novalidate>
+        <div class="flex items-center justify-between">
+            <h2 id="modal-titulo" class="font-headline text-headline-md font-bold">Nuevo artículo</h2>
+            <button type="button" class="text-dark-secondary hover:text-dark-on-surface" data-cerrar aria-label="Cerrar"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <input type="hidden" name="id">
+        <div>
+            <label class="etiqueta" for="m-titulo">Título</label>
+            <input class="campo" id="m-titulo" name="titulo" maxlength="200">
+            <span class="error-campo" data-error-for="titulo"></span>
+        </div>
+        <div>
+            <label class="etiqueta" for="m-problema">Descripción del problema</label>
+            <textarea class="campo" id="m-problema" name="problema" rows="2"></textarea>
+            <span class="error-campo" data-error-for="problema"></span>
+        </div>
+        <div>
+            <label class="etiqueta" for="m-sintomas">Síntomas</label>
+            <textarea class="campo" id="m-sintomas" name="sintomas" rows="2"></textarea>
+            <span class="error-campo" data-error-for="sintomas"></span>
+        </div>
+        <div>
+            <label class="etiqueta" for="m-causa">Causa</label>
+            <textarea class="campo" id="m-causa" name="causa" rows="2"></textarea>
+            <span class="error-campo" data-error-for="causa"></span>
+        </div>
+        <div>
+            <label class="etiqueta" for="m-solucion">Procedimiento de solución</label>
+            <textarea class="campo" id="m-solucion" name="solucion" rows="4"></textarea>
+            <span class="error-campo" data-error-for="solucion"></span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div>
+                <label class="etiqueta" for="m-categoria">Categoría</label>
+                <select class="campo" id="m-categoria" name="categoriaId"></select>
+                <span class="error-campo" data-error-for="categoriaId"></span>
+            </div>
+            <div>
+                <label class="etiqueta" for="m-estado">Estado</label>
+                <select class="campo" id="m-estado" name="estado">
+                    <option value="BORRADOR">Borrador</option><option value="ACTIVO">Activo</option><option value="INACTIVO">Inactivo</option>
+                </select>
+                <span class="error-campo"></span>
+            </div>
+            <label class="flex items-center gap-2 text-body-md pb-5">
+                <input type="checkbox" name="verificado" class="rounded bg-dark-surface-container border-dark-outline-variant text-accent focus:ring-0">
+                Solución verificada
+            </label>
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+            <button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
+            <button type="submit" id="btn-guardar" class="btn btn-primario"><span class="material-symbols-outlined text-[18px]">save</span>Guardar</button>
+        </div>
+    </form>
+</dialog>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/conocimiento.js"></script>
+</body>
+</html>

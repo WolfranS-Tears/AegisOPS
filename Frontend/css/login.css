@@ -1,0 +1,32 @@
+/* ==========================================================================
+   AegisOps — Login: estilos base
+   El diseño principal se resuelve con clases de Tailwind (ver tailwind-config.js).
+   Este archivo contiene únicamente ajustes globales complementarios.
+   ========================================================================== */
+
+html {
+    color-scheme: dark;
+}
+
+/* Iconos Material Symbols */
+.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    user-select: none;
+}
+
+/* Evita que el autocompletado del navegador pinte los campos de blanco */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #f8fafc;
+    caret-color: #f8fafc;
+    -webkit-box-shadow: 0 0 0 1000px #1e293b inset;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Accesibilidad: respeta la preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    .animate-spin {
+        animation: none;
+    }
+}
