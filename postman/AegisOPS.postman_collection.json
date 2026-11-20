@@ -1,0 +1,862 @@
+{
+  "info": {
+    "name": "AegisOPS API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Colección de la API de AegisOPS. Variable baseUrl = http://localhost:8080/api"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api"
+    }
+  ],
+  "item": [
+    {
+      "name": "Catálogos",
+      "item": [
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Usuario por correo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/por-correo?correo=andrea.lozano@aegisops.internal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "por-correo"
+              ],
+              "query": [
+                {
+                  "key": "correo",
+                  "value": "andrea.lozano@aegisops.internal"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Listar categorías",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incidentes (RF01)",
+      "item": [
+        {
+          "name": "Listar con filtros",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/incidentes?categoriaId=1&prioridad=ALTA&estado=RESUELTO&pagina=0&tamano=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "incidentes"
+              ],
+              "query": [
+                {
+                  "key": "categoriaId",
+                  "value": "1"
+                },
+                {
+                  "key": "prioridad",
+                  "value": "ALTA"
+                },
+                {
+                  "key": "estado",
+                  "value": "RESUELTO"
+                },
+                {
+                  "key": "pagina",
+                  "value": "0"
+                },
+                {
+                  "key": "tamano",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Prueba 4 - Incidentes de Conectividad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/incidentes?categoriaId=1&tamano=200",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "incidentes"
+              ],
+              "query": [
+                {
+                  "key": "categoriaId",
+                  "value": "1"
+                },
+                {
+                  "key": "tamano",
+                  "value": "200"
+                }
+              ]
+            },
+            "description": "Comparar totalElementos con SELECT COUNT(*) FROM incidente WHERE categoria_id = 1"
+          }
+        },
+        {
+          "name": "Obtener incidente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/incidentes/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "incidentes",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Prueba 1 - Registrar incidente de conectividad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/incidentes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "incidentes"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Sin internet en sala de juntas\",\n  \"descripcion\": \"Ningún equipo de la sala obtiene IP, aparece 169.254 y no navegan\",\n  \"categoriaId\": 1,\n  \"prioridad\": \"ALTA\",\n  \"usuarioId\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar incidente inválido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/incidentes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "incidentes"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"\",\n  \"descripcion\": \"\",\n  \"categoriaId\": 1,\n  \"prioridad\": \"ALTA\",\n  \"usuarioId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Cambiar estado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/incidentes/301/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "incidentes",
+                "301",
+                "estado"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"RESUELTO\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Base de conocimiento (RF02/RF03)",
+      "item": [
+        {
+          "name": "Listar artículos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/articulos?estado=ACTIVO",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articulos"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "ACTIVO"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Crear artículo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/articulos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articulos"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Teclado inalámbrico no responde\",\n  \"problema\": \"El teclado inalámbrico deja de escribir.\",\n  \"sintomas\": \"No responde al presionar teclas; el receptor USB está conectado.\",\n  \"causa\": \"Baterías agotadas o receptor desemparejado.\",\n  \"solucion\": \"1. Cambiar baterías. 2. Conectar el receptor en otro puerto USB. 3. Volver a emparejar con el botón Connect.\",\n  \"categoriaId\": 7,\n  \"estado\": \"ACTIVO\",\n  \"verificado\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Prueba 6 - Desactivar artículo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/articulos/3/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articulos",
+                "3",
+                "estado"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"INACTIVO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reactivar artículo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/articulos/3/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articulos",
+                "3",
+                "estado"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ACTIVO\",\n  \"verificado\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Indexar (Flujo 1 n8n)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/articulos/indexar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articulos",
+                "indexar"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Asistente RAG (RF04/RF05/RF08)",
+      "item": [
+        {
+          "name": "Prueba 1 - Consulta conectividad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/asistente/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "asistente",
+                "consultas"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"incidenteId\": 301,\n  \"pregunta\": \"Ningún equipo de la sala obtiene IP, aparece 169.254 y no navegan\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Prueba 2 - Error de ejecución",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/asistente/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "asistente",
+                "consultas"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pregunta\": \"Al abrir el programa contable se cierra con el error 0xc000007b y dice que falta VCRUNTIME140.dll\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Prueba 3 - Sin información en la base",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/asistente/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "asistente",
+                "consultas"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pregunta\": \"El aire acondicionado del cuarto de servidores gotea agua sobre el rack y la alarma de humedad suena\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Prueba 7 - Descripción vacía (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/asistente/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "asistente",
+                "consultas"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"incidenteId\": 301,\n  \"pregunta\": \"   \"\n}"
+            }
+          }
+        },
+        {
+          "name": "Prueba 9 - Historial de un incidente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/asistente/consultas?incidenteId=301",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "asistente",
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "incidenteId",
+                  "value": "301"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Obtener consulta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/asistente/consultas/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "asistente",
+                "consultas",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Prueba 10 - Calificar respuesta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/asistente/respuestas/1/calificacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "asistente",
+                "respuestas",
+                "1",
+                "calificacion"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"puntuacion\": 4,\n  \"comentario\": \"Los pasos resolvieron el problema\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Calificación fuera de rango (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/asistente/respuestas/1/calificacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "asistente",
+                "respuestas",
+                "1",
+                "calificacion"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"puntuacion\": 6\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analítica (RF06/RF07)",
+      "item": [
+        {
+          "name": "Dashboard completo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analitica/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analitica",
+                "dashboard"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Dashboard filtrado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analitica/dashboard?desde=2026-09-01&hasta=2026-10-31&categoriaId=1&prioridad=ALTA",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analitica",
+                "dashboard"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-09-01"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-10-31"
+                },
+                {
+                  "key": "categoriaId",
+                  "value": "1"
+                },
+                {
+                  "key": "prioridad",
+                  "value": "ALTA"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Resumen",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analitica/resumen",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analitica",
+                "resumen"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Prueba 5 - Tendencia semanal",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analitica/tendencia-semanal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analitica",
+                "tendencia-semanal"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Distribución por categoría",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analitica/distribucion?dimension=categoria",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analitica",
+                "distribucion"
+              ],
+              "query": [
+                {
+                  "key": "dimension",
+                  "value": "categoria"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Tiempos por prioridad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analitica/tiempos-resolucion?dimension=prioridad",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analitica",
+                "tiempos-resolucion"
+              ],
+              "query": [
+                {
+                  "key": "dimension",
+                  "value": "prioridad"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Categorías críticas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analitica/categorias-criticas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analitica",
+                "categorias-criticas"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "SLA",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analitica/sla",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analitica",
+                "sla"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Responsables",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analitica/responsables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analitica",
+                "responsables"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Asistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analitica/asistente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analitica",
+                "asistente"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Interno (consumido por n8n)",
+      "item": [
+        {
+          "name": "Artículos para indexación",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/internal/articulos/indexacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "internal",
+                "articulos",
+                "indexacion"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Fuentes válidas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/internal/articulos/fuentes?ids=1,2,3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "internal",
+                "articulos",
+                "fuentes"
+              ],
+              "query": [
+                {
+                  "key": "ids",
+                  "value": "1,2,3"
+                }
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    }
+  ]
+}

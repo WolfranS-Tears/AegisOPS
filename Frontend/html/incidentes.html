@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisOps — Incidentes</title>
+    <script src="https://cdn.tailwindcss.com?plugins=container-queries"></script>
+    <script src="../js/index.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body data-pagina="incidentes" class="bg-dark-surface text-dark-on-surface font-body antialiased min-h-screen">
+
+<main id="contenido" class="min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="font-headline text-headline-lg font-bold">Gestión de incidentes</h1>
+                <p class="text-body-md text-dark-secondary">Registrar, consultar, filtrar y actualizar el estado (RF01).</p>
+            </div>
+            <button id="btn-nuevo" type="button" class="btn btn-primario"><span class="material-symbols-outlined text-[18px]">add</span>Nuevo incidente</button>
+        </div>
+
+        <form id="filtros" class="tarjeta p-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 items-end">
+            <div class="col-span-2">
+                <label class="etiqueta" for="f-texto">Buscar</label>
+                <input class="campo" id="f-texto" name="texto" type="search" placeholder="Título o descripción">
+            </div>
+            <div>
+                <label class="etiqueta" for="f-categoria">Categoría</label>
+                <select class="campo" id="f-categoria" name="categoriaId"></select>
+            </div>
+            <div>
+                <label class="etiqueta" for="f-prioridad">Prioridad</label>
+                <select class="campo" id="f-prioridad" name="prioridad">
+                    <option value="">Todas</option><option value="CRITICA">Crítica</option><option value="ALTA">Alta</option>
+                    <option value="MEDIA">Media</option><option value="BAJA">Baja</option>
+                </select>
+            </div>
+            <div>
+                <label class="etiqueta" for="f-estado">Estado</label>
+                <select class="campo" id="f-estado" name="estado">
+                    <option value="">Todos</option><option value="ABIERTO">Abierto</option><option value="EN_PROGRESO">En progreso</option>
+                    <option value="RESUELTO">Resuelto</option><option value="CERRADO">Cerrado</option>
+                </select>
+            </div>
+            <div>
+                <label class="etiqueta" for="f-usuario">Responsable</label>
+                <select class="campo" id="f-usuario" name="usuarioId"></select>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="btn btn-primario flex-1" aria-label="Filtrar"><span class="material-symbols-outlined text-[18px]">filter_alt</span></button>
+                <button type="button" id="btn-limpiar" class="btn btn-secundario" aria-label="Limpiar filtros"><span class="material-symbols-outlined text-[18px]">restart_alt</span></button>
+            </div>
+        </form>
+
+        <section class="tarjeta">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-dark-outline">
+                <span id="total" class="text-body-sm text-dark-secondary" aria-live="polite">—</span>
+                <div class="flex items-center gap-2">
+                    <button id="btn-prev" class="btn btn-secundario" type="button" aria-label="Página anterior"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+                    <span id="pagina" class="text-body-sm font-code text-dark-secondary">—</span>
+                    <button id="btn-next" class="btn btn-secundario" type="button" aria-label="Página siguiente"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="tabla">
+                    <thead>
+                        <tr><th>#</th><th>Incidente</th><th>Categoría</th><th>Prioridad</th><th>Estado</th><th>Responsable</th><th>Creado</th><th class="num">Horas</th><th></th></tr>
+                    </thead>
+                    <tbody id="filas"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</main>
+
+<!-- Modal: nuevo / editar incidente -->
+<dialog id="modal" class="modal" aria-labelledby="modal-titulo">
+    <form id="form-incidente" method="dialog" class="p-6 space-y-4" novalidate>
+        <div class="flex items-center justify-between">
+            <h2 id="modal-titulo" class="font-headline text-headline-md font-bold">Nuevo incidente</h2>
+            <button type="button" class="text-dark-secondary hover:text-dark-on-surface" data-cerrar aria-label="Cerrar"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <input type="hidden" name="id">
+        <div>
+            <label class="etiqueta" for="i-titulo">Título</label>
+            <input class="campo" id="i-titulo" name="titulo" maxlength="200" required>
+            <span class="error-campo" data-error-for="titulo"></span>
+        </div>
+        <div>
+            <label class="etiqueta" for="i-descripcion">Descripción</label>
+            <textarea class="campo" id="i-descripcion" name="descripcion" rows="4" required></textarea>
+            <span class="error-campo" data-error-for="descripcion"></span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+                <label class="etiqueta" for="i-categoria">Categoría</label>
+                <select class="campo" id="i-categoria" name="categoriaId" required></select>
+                <span class="error-campo" data-error-for="categoriaId"></span>
+            </div>
+            <div>
+                <label class="etiqueta" for="i-prioridad">Prioridad</label>
+                <select class="campo" id="i-prioridad" name="prioridad" required>
+                    <option value="BAJA">Baja</option><option value="MEDIA" selected>Media</option>
+                    <option value="ALTA">Alta</option><option value="CRITICA">Crítica</option>
+                </select>
+                <span class="error-campo" data-error-for="prioridad"></span>
+            </div>
+            <div>
+                <label class="etiqueta" for="i-usuario">Responsable</label>
+                <select class="campo" id="i-usuario" name="usuarioId" required></select>
+                <span class="error-campo" data-error-for="usuarioId"></span>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+            <button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
+            <button type="submit" id="btn-guardar" class="btn btn-primario"><span class="material-symbols-outlined text-[18px]">save</span>Guardar</button>
+        </div>
+    </form>
+</dialog>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/incidentes.js"></script>
+</body>
+</html>

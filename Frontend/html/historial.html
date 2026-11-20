@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisOps — Historial IA</title>
+    <script src="https://cdn.tailwindcss.com?plugins=container-queries"></script>
+    <script src="../js/index.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body data-pagina="historial" class="bg-dark-surface text-dark-on-surface font-body antialiased min-h-screen">
+
+<main id="contenido" class="min-h-screen">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+        <div>
+            <h1 class="font-headline text-headline-lg font-bold">Historial de asistencias</h1>
+            <p class="text-body-md text-dark-secondary">Cada consulta inteligente con su respuesta, fuentes, estado, fecha y calificación (RF08).</p>
+        </div>
+
+        <form id="filtros" class="tarjeta p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div>
+                <label class="etiqueta" for="h-incidente">N.º de incidente</label>
+                <input class="campo" id="h-incidente" name="incidenteId" type="number" min="1" placeholder="Todos">
+            </div>
+            <div>
+                <label class="etiqueta" for="h-estado">Estado</label>
+                <select class="campo" id="h-estado" name="estado">
+                    <option value="">Todos</option><option value="RESPONDIDA">Respondida</option>
+                    <option value="SIN_RESULTADOS">Sin resultados</option><option value="ERROR">Error</option>
+                    <option value="PENDIENTE">Pendiente</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primario"><span class="material-symbols-outlined text-[18px]">search</span>Filtrar</button>
+        </form>
+
+        <p id="resumen" class="text-body-sm text-dark-secondary" aria-live="polite"></p>
+        <div id="lista" class="space-y-4"></div>
+    </div>
+</main>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/consulta-render.js"></script>
+<script src="../js/historial.js"></script>
+</body>
+</html>

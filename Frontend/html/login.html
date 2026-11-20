@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisOps — Iniciar sesión</title>
+
+<!-- Tailwind CDN + configuración (el orden importa) -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="../js/index.js"></script>
+
+<!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+<!-- Estilos propios -->
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body class="bg-dark-surface text-dark-on-surface font-body min-h-screen flex flex-col justify-between antialiased selection:bg-accent selection:text-white">
+
+<!-- Header Mínimo de Autenticación -->
+<header class="p-6 lg:px-12 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-md bg-accent/20 border border-accent/40 text-accent flex items-center justify-center font-bold text-headline-md group-hover:brightness-110 transition-all">
+            <span class="material-symbols-outlined text-[20px]">shield</span>
+        </div>
+        <span class="font-headline text-title-lg font-bold tracking-tight text-dark-on-surface">Aegis<span class="text-accent">Ops</span></span>
+    </a>
+
+    <a href="index.html" class="inline-flex items-center gap-1.5 text-body-sm text-dark-secondary hover:text-dark-on-surface transition-colors">
+        <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+        <span>Volver al portal principal</span>
+    </a>
+</header>
+
+<!-- Tarjeta Central de Inicio de Sesión -->
+<main class="flex-1 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-dark-surface-container-low rounded-md border border-dark-outline shadow-2xl p-8 space-y-6">
+
+        <div class="text-center space-y-2">
+            <div class="w-12 h-12 rounded-full bg-dark-surface-container border border-dark-outline text-accent mx-auto flex items-center justify-center mb-3">
+                <span class="material-symbols-outlined text-[24px]">vpn_key</span>
+            </div>
+            <h1 class="font-headline text-headline-sm font-bold text-dark-on-surface">Iniciar sesión en AegisOps</h1>
+            <p class="text-body-sm text-dark-secondary">Gestión de incidentes, analítica y asistente RAG.</p>
+        </div>
+
+        <form id="login-form" class="space-y-4" novalidate>
+            <div>
+                <label for="login-email" class="block font-label text-label-md font-semibold text-dark-on-surface mb-1">
+                    Correo electrónico corporativo
+                </label>
+                <div class="relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-3 text-dark-secondary text-[18px]">mail</span>
+                    <input id="login-email" type="email" required autocomplete="email" placeholder="usuario@aegisops.internal" class="w-full pl-10 pr-3 py-2.5 rounded-DEFAULT bg-dark-surface-container border border-dark-outline text-body-md text-dark-on-surface focus:border-accent focus:ring-1 focus:ring-accent outline-none placeholder:text-dark-secondary/50 font-body">
+                </div>
+                <p id="login-error" class="mt-1 min-h-[16px] text-body-sm text-error" role="alert"></p>
+            </div>
+
+            <button type="submit" id="btn-submit-login" class="w-full py-3 rounded-DEFAULT bg-accent text-dark-on-primary font-label text-label-lg font-bold hover:brightness-110 active:scale-[0.99] transition-all shadow-md shadow-accent/20 flex items-center justify-center gap-2">
+                <span>Acceder a la consola</span>
+                <span class="material-symbols-outlined text-[18px]">login</span>
+            </button>
+        </form>
+
+        <!-- Usuarios de demostración (vienen de la tabla usuario) -->
+        <div class="p-3 rounded bg-dark-surface-container/70 border border-dark-outline text-body-sm text-dark-secondary space-y-2">
+            <div class="flex items-start gap-2.5">
+                <span class="material-symbols-outlined text-accent text-[18px] shrink-0 mt-0.5">info</span>
+                <div>
+                    <span class="font-semibold text-dark-on-surface">Acceso de demostración:</span>
+                    el proyecto no implementa contraseñas. Seleccione un técnico registrado en la base de datos.
+                </div>
+            </div>
+            <label for="login-demo" class="sr-only">Usuario de demostración</label>
+            <select id="login-demo" class="w-full py-2 px-3 rounded-DEFAULT bg-dark-surface-container border border-dark-outline text-body-md text-dark-on-surface focus:border-accent focus:ring-1 focus:ring-accent">
+                <option value="">Cargando usuarios…</option>
+            </select>
+        </div>
+
+    </div>
+</main>
+
+<footer class="p-6 text-center text-body-sm text-dark-secondary border-t border-dark-outline/40">
+    <span>AegisOps · Gestión de incidentes tecnológicos con IA</span>
+</footer>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/login.js"></script>
+
+</body>
+</html>

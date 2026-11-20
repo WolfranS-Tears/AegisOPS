@@ -1,0 +1,650 @@
+{
+  "name": "AegisOPS - Flujo 2 - Asistencia RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Flujo 2 - Asistencia inteligente RAG\nEntrada (solo desde Spring Boot): `{consultaId, pregunta, umbral, topK}`\n\n1. Valida que la pregunta no esté vacía.\n2. Embedding de la pregunta (OpenRouter).\n3. Búsqueda en Qdrant con `score_threshold = umbral` y `limit = topK`.\n4. Confirma en el backend que las fuentes existen y están activas.\n5. El LLM responde **solo** con esos artículos; si no alcanzan responde SIN_RESULTADOS.\n\nSalida: `{estado, solucion, pasos[], fuentes[{articuloId, titulo, similitud}], modelo}`",
+        "width": 560,
+        "height": 320,
+        "color": 4
+      },
+      "id": "58c20500-d7a0-4590-a848-c5b2c034d386",
+      "name": "6a8513bd",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aegisops-rag",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "31d40cf2-8165-43da-acfe-e86e756e9009",
+      "name": "Webhook RAG",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        0
+      ],
+      "webhookId": "0d9accbc-a839-4b78-9bd0-27825d8d2029"
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc143dee-2f30-4f42-91e0-06fa2a664a65",
+              "name": "qdrantUrl",
+              "value": "http://host.docker.internal:6333",
+              "type": "string"
+            },
+            {
+              "id": "2ee9d1a4-a65f-46f7-aa4b-ed8771ce1714",
+              "name": "coleccion",
+              "value": "articulos_conocimiento",
+              "type": "string"
+            },
+            {
+              "id": "4dd99472-e46e-4fec-945d-4ff146f8908b",
+              "name": "backendUrl",
+              "value": "http://host.docker.internal:8080",
+              "type": "string"
+            },
+            {
+              "id": "56d0c4b5-a7ee-40b9-b4ac-1306787856bb",
+              "name": "internalToken",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "7491d59e-2121-4c6d-b094-f7ca3c9ca7c0",
+              "name": "modeloEmbedding",
+              "value": "openai/text-embedding-3-small",
+              "type": "string"
+            },
+            {
+              "id": "a7d3966d-0115-4c75-acf7-b0d28c7fc229",
+              "name": "modeloChat",
+              "value": "openai/gpt-4o-mini",
+              "type": "string"
+            },
+            {
+              "id": "3fb3eba2-6e67-4355-be4c-a67957455e47",
+              "name": "consultaId",
+              "value": "={{ $json.body.consultaId }}",
+              "type": "string"
+            },
+            {
+              "id": "23066776-df2b-48e7-bbcb-0441a45c2636",
+              "name": "pregunta",
+              "value": "={{ $json.body.pregunta }}",
+              "type": "string"
+            },
+            {
+              "id": "854551d7-5f39-43b3-b4ef-2eb3467c0e7d",
+              "name": "umbral",
+              "value": "={{ $json.body.umbral }}",
+              "type": "string"
+            },
+            {
+              "id": "74a7a917-a4e8-4281-b61a-f296e2c35266",
+              "name": "topK",
+              "value": "={{ $json.body.topK }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "50815144-74ff-4a8a-b8ce-69a0fc527b9f",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -180,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Regla: una pregunta vacía nunca ejecuta el flujo inteligente\nconst c = $json;\nconst pregunta = String(c.pregunta || '').trim();\nlet umbral = Number(c.umbral);\nif (!Number.isFinite(umbral) || umbral < 0 || umbral > 1) umbral = 0.5;\nlet topK = parseInt(c.topK, 10);\nif (!Number.isFinite(topK)) topK = 5;\ntopK = Math.min(5, Math.max(3, topK));\nreturn [{ json: { ...c, pregunta, umbral, topK, valida: pregunta.length > 0 } }];"
+      },
+      "id": "5c867de3-7e2c-4c32-8c57-2f929427f680",
+      "name": "Validar entrada",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "797237b6-ce80-44dd-a919-c6b6dd3b7ba6",
+              "leftValue": "={{ $json.valida }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a28d3006-d6de-4892-b8c0-3d3a71920c67",
+      "name": "¿Pregunta válida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/embeddings",
+        "options": {
+          "timeout": 30000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $json.modeloEmbedding, input: $json.pregunta }) }}"
+      },
+      "id": "921e7ff2-710b-49ff-aba3-a70c9b4e7071",
+      "name": "Embedding pregunta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        -120
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REEMPLAZAR_CREDENCIAL",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Validar entrada').item.json.qdrantUrl }}/collections/{{ $('Validar entrada').item.json.coleccion }}/points/search",
+        "options": {
+          "timeout": 30000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ vector: $json.data[0].embedding, limit: $('Validar entrada').item.json.topK, score_threshold: $('Validar entrada').item.json.umbral, with_payload: true, filter: { must: [ { key: 'indexable', match: { value: true } } ] } }) }}"
+      },
+      "id": "8bfa9b25-8c81-4079-9796-e9680af7e99c",
+      "name": "Buscar en Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        -120
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Resultados semánticos sobre el umbral, con su similitud coseno\nconst cfg = $('Validar entrada').first().json;\nconst resultados = $json.result || [];\nconst candidatas = resultados\n  .map(r => ({\n    articuloId: Number((r.payload && r.payload.articulo_id) ?? r.id),\n    titulo: r.payload ? r.payload.titulo : null,\n    similitud: Math.round(r.score * 10000) / 10000,\n  }))\n  .filter(c => c.similitud >= cfg.umbral);\nreturn [{ json: { candidatas, ids: candidatas.map(c => c.articuloId).join(','), hay: candidatas.length > 0 } }];"
+      },
+      "id": "95c2b044-8916-47e8-946c-2dc753fb2770",
+      "name": "Candidatas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        920,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b28cf166-b33a-45f1-b2f4-b91057a0902c",
+              "leftValue": "={{ $json.hay }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "00f4cc5f-a204-4748-8818-c21934ddd8dc",
+      "name": "¿Hay candidatas?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1140,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Validar entrada').item.json.backendUrl }}/api/internal/articulos/fuentes?ids={{ $json.ids }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": false
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Internal-Token",
+              "value": "={{ $('Validar entrada').item.json.internalToken }}"
+            }
+          ]
+        }
+      },
+      "id": "b2e8ed31-08b6-4eec-bce2-9c099c953d19",
+      "name": "Validar fuentes (backend)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        -240
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Solo artículos que existen en la base relacional y están activos/verificados\nconst candidatas = $('Candidatas').first().json.candidatas;\nconst validos = Array.isArray($json.body) ? $json.body : [];\nconst porId = Object.fromEntries(validos.map(a => [a.id, a]));\nconst fuentes = candidatas\n  .filter(c => porId[c.articuloId])\n  .map(c => ({ articuloId: c.articuloId, titulo: porId[c.articuloId].titulo, similitud: c.similitud }));\n\nconst contexto = fuentes.map(f => {\n  const a = porId[f.articuloId];\n  return `[Artículo ${a.id}] ${a.titulo} (similitud ${f.similitud})\\n` +\n         `Categoría: ${a.categoria}\\nProblema: ${a.problema}\\nSíntomas: ${a.sintomas}\\n` +\n         `Causa: ${a.causa}\\nSolución: ${a.solucion}`;\n}).join('\\n\\n---\\n\\n');\n\nconst sistema = [\n  'Eres el asistente de soporte técnico de AegisOPS.',\n  'Responde ÚNICAMENTE con la información de los artículos del CONTEXTO.',\n  'No inventes pasos, comandos, causas ni datos que no aparezcan en el contexto.',\n  'Si los artículos no resuelven el problema descrito, responde con \"suficiente\": false.',\n  'Responde en español y SOLO con un objeto JSON con esta forma:',\n  '{\"suficiente\": boolean, \"solucion\": \"resumen de la solución sugerida\", ' +\n  '\"pasos\": [\"paso 1\", \"paso 2\"], \"fuentesUsadas\": [ids numéricos de los artículos usados]}',\n].join(' ');\n\nconst pregunta = $('Validar entrada').first().json.pregunta;\nreturn [{ json: {\n  fuentes,\n  hay: fuentes.length > 0,\n  messages: [\n    { role: 'system', content: sistema },\n    { role: 'user', content: `CONTEXTO:\\n${contexto}\\n\\nPROBLEMA DEL USUARIO:\\n${pregunta}` },\n  ],\n} }];"
+      },
+      "id": "d55f0dfe-d03e-4dd2-a166-34b923d3dbbc",
+      "name": "Construir contexto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1580,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fc92443a-7b57-4c04-b0e2-32a013b64a04",
+              "leftValue": "={{ $json.hay }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3f760036-6fd2-45d8-a4db-e1fdfc0b66f7",
+      "name": "¿Fuentes válidas?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1800,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "options": {
+          "timeout": 30000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $('Validar entrada').item.json.modeloChat, temperature: 0.1, response_format: { type: 'json_object' }, messages: $json.messages }) }}"
+      },
+      "id": "2107d683-ea2f-4649-a11c-abff678e6779",
+      "name": "Generar respuesta (LLM)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2020,
+        -360
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REEMPLAZAR_CREDENCIAL",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convierte la salida del LLM al contrato que espera Spring Boot\nconst ctx = $('Construir contexto').first().json;\nconst modelo = $json.model || $('Validar entrada').first().json.modeloChat;\nlet salida;\ntry {\n  let texto = $json.choices[0].message.content.trim();\n  texto = texto.replace(/^```(json)?/i, '').replace(/```$/, '').trim();\n  salida = JSON.parse(texto);\n} catch (e) {\n  return [{ json: { estado: 'ERROR', error: 'El modelo devolvió un formato no válido: ' + e.message } }];\n}\nconst solucion = String(salida.solucion || '').trim();\nif (salida.suficiente === false || !solucion) {\n  return [{ json: { estado: 'SIN_RESULTADOS', solucion: null, pasos: [], fuentes: [], modelo } }];\n}\nconst usadas = Array.isArray(salida.fuentesUsadas) ? salida.fuentesUsadas.map(Number) : [];\nlet fuentes = ctx.fuentes.filter(f => usadas.includes(f.articuloId));\nif (fuentes.length === 0) fuentes = ctx.fuentes;   // el modelo no citó: se reportan todas las recuperadas\nconst pasos = Array.isArray(salida.pasos) ? salida.pasos.map(p => String(p).trim()).filter(Boolean) : [];\nreturn [{ json: { estado: 'RESPONDIDA', solucion, pasos, fuentes, modelo } }];"
+      },
+      "id": "885b46a6-37ed-4ee2-859f-5a58b629f5aa",
+      "name": "Formatear respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "df08617a-af96-41d3-8fd5-a12e0406e54d",
+      "name": "Responder",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2460,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ estado: 'SIN_RESULTADOS', solucion: null, pasos: [], fuentes: [] }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "9e000323-27ad-4d9a-a77b-51a2f47d3fd8",
+      "name": "Responder sin resultados",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2020,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ estado: 'ERROR', error: 'La pregunta está vacía' }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "8920cb85-f64c-4079-8798-ce3506ba97fd",
+      "name": "Responder pregunta vacía",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ estado: 'ERROR', error: ($json.error && ($json.error.message || $json.error.description)) || 'Fallo en un servicio externo' }) }}",
+        "options": {
+          "responseCode": 502
+        }
+      },
+      "id": "cafd6c6c-17ae-4d0f-9b77-1a266e80c448",
+      "name": "Responder error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1580,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook RAG": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Validar entrada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar entrada": {
+      "main": [
+        [
+          {
+            "node": "¿Pregunta válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Pregunta válida?": {
+      "main": [
+        [
+          {
+            "node": "Embedding pregunta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder pregunta vacía",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embedding pregunta": {
+      "main": [
+        [
+          {
+            "node": "Buscar en Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar en Qdrant": {
+      "main": [
+        [
+          {
+            "node": "Candidatas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidatas": {
+      "main": [
+        [
+          {
+            "node": "¿Hay candidatas?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay candidatas?": {
+      "main": [
+        [
+          {
+            "node": "Validar fuentes (backend)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder sin resultados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar fuentes (backend)": {
+      "main": [
+        [
+          {
+            "node": "Construir contexto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construir contexto": {
+      "main": [
+        [
+          {
+            "node": "¿Fuentes válidas?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Fuentes válidas?": {
+      "main": [
+        [
+          {
+            "node": "Generar respuesta (LLM)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder sin resultados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar respuesta (LLM)": {
+      "main": [
+        [
+          {
+            "node": "Formatear respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatear respuesta": {
+      "main": [
+        [
+          {
+            "node": "Responder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "active": false
+}

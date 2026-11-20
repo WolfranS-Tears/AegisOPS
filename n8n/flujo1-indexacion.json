@@ -1,0 +1,522 @@
+{
+  "name": "AegisOPS - Flujo 1 - Indexación de conocimiento",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Flujo 1 - Indexación de la base de conocimiento\n1. Recibe `{articuloId}` (null = toda la base) desde Spring Boot.\n2. Consulta los artículos al backend (fuente de verdad).\n3. Genera embeddings con OpenRouter y hace **upsert** en Qdrant con `id = articulo.id` (sin duplicados, re-indexar actualiza).\n4. Retira de Qdrant los artículos no activos o no verificados.\n\nEditar el nodo **Config** si cambian URLs o modelo.",
+        "width": 520,
+        "height": 280,
+        "color": 4
+      },
+      "id": "0b6f5b89-6038-4840-b985-9a3b34eeb4b8",
+      "name": "e8adb762",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aegisops-indexar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "653a22a2-9558-40a6-9a1f-b8e1e05d8e0d",
+      "name": "Webhook Indexar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        0
+      ],
+      "webhookId": "f7416ac0-89f7-4edd-986c-1810dbe2d320"
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "42fb7d7d-0ec7-48e1-8756-04d547fe9441",
+              "name": "qdrantUrl",
+              "value": "http://host.docker.internal:6333",
+              "type": "string"
+            },
+            {
+              "id": "bc21d833-2963-49d7-9d2a-0f69d490af51",
+              "name": "coleccion",
+              "value": "articulos_conocimiento",
+              "type": "string"
+            },
+            {
+              "id": "5f507b28-0b49-4904-bbe9-d32ec0ec026d",
+              "name": "backendUrl",
+              "value": "http://host.docker.internal:8080",
+              "type": "string"
+            },
+            {
+              "id": "c7b047b6-6c6b-4e62-9f59-235db4db9f18",
+              "name": "internalToken",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "89aafc5a-84a1-4410-b9e8-8581f50eb700",
+              "name": "modeloEmbedding",
+              "value": "openai/text-embedding-3-small",
+              "type": "string"
+            },
+            {
+              "id": "332f46ec-4e22-4996-8016-b3cabc90ed1a",
+              "name": "dimension",
+              "value": 1536,
+              "type": "number"
+            },
+            {
+              "id": "1de27b64-b36d-40c0-8e41-07ed87ff9210",
+              "name": "articuloId",
+              "value": "={{ $json.body && $json.body.articuloId != null ? String($json.body.articuloId) : '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "d4729eef-71ce-4498-b886-e94addc32291",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -180,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('Config').item.json.qdrantUrl }}/collections/{{ $('Config').item.json.coleccion }}",
+        "options": {
+          "timeout": 30000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ vectors: { size: $('Config').item.json.dimension, distance: 'Cosine' } }) }}"
+      },
+      "id": "f5cdfe06-0363-45d4-806d-05bac123eeba",
+      "name": "Asegurar colección",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        40,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Config').item.json.backendUrl }}/api/internal/articulos/indexacion{{ $('Config').item.json.articuloId ? '?articuloId=' + $('Config').item.json.articuloId : '' }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": false
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Internal-Token",
+              "value": "={{ $('Config').item.json.internalToken }}"
+            }
+          ]
+        }
+      },
+      "id": "0e042eed-d0af-4d82-8fa8-2af5dea9b85b",
+      "name": "Obtener artículos (backend)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Separa artículos a indexar (activos y verificados) y a retirar del índice\nconst articulos = Array.isArray($json.body) ? $json.body : [];\nconst activos = articulos.filter(a => a.indexable);\nconst retirar = articulos.filter(a => !a.indexable).map(a => a.id);\nreturn [{ json: {\n  total: articulos.length,\n  activos,\n  retirar,\n  textos: activos.map(a => a.texto),\n  hayActivos: activos.length > 0,\n  hayRetirar: retirar.length > 0,\n} }];"
+      },
+      "id": "2e63c3e4-6276-434b-832a-3068c1a68054",
+      "name": "Preparar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ebbc309d-657a-4171-be3c-61eefcf7fce7",
+              "leftValue": "={{ $json.hayActivos }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f7f83e1-9368-420a-a0c6-1080f128d83d",
+      "name": "¿Hay activos?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        700,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/embeddings",
+        "options": {
+          "timeout": 30000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $('Config').item.json.modeloEmbedding, input: $json.textos }) }}"
+      },
+      "id": "8b207376-6cb7-4c55-a939-6d2d16413102",
+      "name": "Embeddings (lote)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        920,
+        -120
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REEMPLAZAR_CREDENCIAL",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Une cada artículo con su vector. id del punto = id del artículo (evita duplicados)\nconst prep = $('Preparar').first().json;\nconst data = ($json.data || []).slice().sort((a, b) => a.index - b.index);\nif (data.length !== prep.activos.length) {\n  throw new Error(`Se esperaban ${prep.activos.length} embeddings y llegaron ${data.length}`);\n}\nconst points = prep.activos.map((a, i) => ({\n  id: a.id,\n  vector: data[i].embedding,\n  payload: {\n    articulo_id: a.id,\n    titulo: a.titulo,\n    categoria: a.categoria,\n    estado: a.estado,\n    verificado: a.verificado,\n    indexable: true,\n    fecha_actualizacion: a.fechaActualizacion,\n  },\n}));\nreturn [{ json: { points } }];"
+      },
+      "id": "934eee97-7bed-420e-afcf-1e5f4c038428",
+      "name": "Construir puntos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('Config').item.json.qdrantUrl }}/collections/{{ $('Config').item.json.coleccion }}/points?wait=true",
+        "options": {
+          "timeout": 30000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ points: $json.points }) }}"
+      },
+      "id": "df378a15-34e9-4f36-9866-4e25fd196402",
+      "name": "Upsert en Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        -120
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ac48ae92-ba68-49ed-855e-221008d15232",
+              "leftValue": "={{ $('Preparar').first().json.hayRetirar }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "830c5b3d-335c-407c-a9d0-59d5e425b9bc",
+      "name": "¿Hay que retirar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1580,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').item.json.qdrantUrl }}/collections/{{ $('Config').item.json.coleccion }}/points/delete?wait=true",
+        "options": {
+          "timeout": 30000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ points: $('Preparar').first().json.retirar }) }}"
+      },
+      "id": "3422e41d-478b-4755-a8b9-d8c396ba3d9b",
+      "name": "Retirar de Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1800,
+        -120
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, coleccion: $('Config').first().json.coleccion, total: $('Preparar').first().json.total, indexados: $('Preparar').first().json.activos.length, retirados: $('Preparar').first().json.retirar.length }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "bd2c0d29-c5c1-4b3f-9441-b22e5c6f5dcb",
+      "name": "Responder resumen",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2020,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ estado: 'ERROR', error: ($json.error && ($json.error.message || $json.error.description)) || 'Fallo en un servicio externo' }) }}",
+        "options": {
+          "responseCode": 502
+        }
+      },
+      "id": "528bf8e4-6376-4b23-b0eb-570677ad2f0e",
+      "name": "Responder error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1580,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Indexar": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Asegurar colección",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asegurar colección": {
+      "main": [
+        [
+          {
+            "node": "Obtener artículos (backend)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener artículos (backend)": {
+      "main": [
+        [
+          {
+            "node": "Preparar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar": {
+      "main": [
+        [
+          {
+            "node": "¿Hay activos?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay activos?": {
+      "main": [
+        [
+          {
+            "node": "Embeddings (lote)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "¿Hay que retirar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings (lote)": {
+      "main": [
+        [
+          {
+            "node": "Construir puntos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construir puntos": {
+      "main": [
+        [
+          {
+            "node": "Upsert en Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert en Qdrant": {
+      "main": [
+        [
+          {
+            "node": "¿Hay que retirar?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay que retirar?": {
+      "main": [
+        [
+          {
+            "node": "Retirar de Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder resumen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retirar de Qdrant": {
+      "main": [
+        [
+          {
+            "node": "Responder resumen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "active": false
+}
