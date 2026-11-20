@@ -164,3 +164,5 @@ Cada tarea va en su propia rama, que se crea desde `develop` y se integra median
 | `docs/entregables` | Informe, pruebas, diagramas |
 
 Mensajes de commit en formato *Conventional Commits*, por ejemplo `feat(incidentes): filtro por responsable`.
+
+![alt text](image.png)
